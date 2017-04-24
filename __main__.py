@@ -1,5 +1,6 @@
 from csv import reader
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from textblob import TextBlob
 import matplotlib.pyplot as plt
 
 
@@ -38,7 +39,7 @@ def get_analysed_artist_songs(artist, amount=None):
         if amount:
             if counter == amount:
                 break
-        analysed_songs[song[1]] = analyse_sentiment(song[-1])['compound']
+        analysed_songs[song[1]] = analyse_sentiment(song[-1])
     return analysed_songs
 
 
@@ -57,9 +58,26 @@ def get_artists_sentiment(artists):
     return artists_sentiment
 
 
-def analyse_sentiment(text):
+def analyse_sentiment(text, analyser='both'):
+    if analyser == 'vader':
+        return analyse_sentiment_vader(text)['compound']
+    elif analyser == 'textblob':
+        return analyse_sentiment_textblob(text)
+    else:
+        return (analyse_sentiment_vader(text)['compound'] + analyse_sentiment_textblob(text)) / 2
+        
+
+def analyse_sentiment_vader(text):
     analyzer = SentimentIntensityAnalyzer()
     return analyzer.polarity_scores(text)
+
+
+def analyse_sentiment_textblob(text):
+    blob = TextBlob(text)
+    sentiment = 0
+    for sentence in blob.sentences:
+        sentiment += sentence.sentiment.polarity
+    return sentiment / len(blob.sentences)
 
 
 def plot(dictionary):
@@ -74,18 +92,18 @@ dataset = load_csv('/home/dennis/Workspace/vu/TextMining/final_assignment/songda
 # example commands
 
 # get a list of all the artists in the corpus
-print(get_artists())
+# print(get_artists())
 
 # get the compound sentiment score of all the artist songs
-print(get_analysed_artist_songs('ABBA'))
+# print(get_analysed_artist_songs('ABBA'))
 
 # plot a graph of the mean sentiment of x=20 artists
-plot(get_artists_sentiment(get_artists(20)))
+# plot(get_artists_sentiment(get_artists(20)))
 
-# plot a graph of the sentiment of x=20 songs from an artists
-plot(get_analysed_artist_songs('Bob Marley', 20))
+# plot a graph of the sentiment of x=20 songs from an artist
+# plot(get_analysed_artist_songs('Pitbull', 20))
 
 # print the song attributes for all the songs of an artist
-for song in get_songs_by_artist('ABBA'):
-    for attr in song:
-        print(attr)
+# for song in get_songs_by_artist('ABBA'):
+#     for attr in song:
+#         print(attr)
