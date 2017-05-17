@@ -2,7 +2,12 @@ from csv import reader
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 import matplotlib.pyplot as plt
+import numpy as np
+from collections import Counter
+import nltk
 
+
+VERB_TYPES = ['VBP']
 
 def load_csv(filename):
     file = open(filename, "r")
@@ -58,7 +63,7 @@ def get_artists_sentiment(artists):
     return artists_sentiment
 
 
-def analyse_sentiment(text, analyser='both'):
+def analyse_sentiment(text, analyser='vader'):
     if analyser == 'vader':
         return analyse_sentiment_vader(text)['compound']
     elif analyser == 'textblob':
@@ -79,11 +84,56 @@ def analyse_sentiment_textblob(text):
         sentiment += sentence.sentiment.polarity
     return sentiment / len(blob.sentences)
 
+def count_artist_verb_occurence(artist, amount=None):
+    analysed_songs = {}
+    songs = get_songs_by_artist(artist)
+    for counter, song in enumerate(songs):
+        if amount:
+            if counter == amount:
+                break
+        analysed_songs[song[1]] = count_verbs(song[-1])
+    return analysed_songs
 
-def plot(dictionary):
-    plt.bar(range(len(dictionary)), dictionary.values(), align='center')
+
+def get_verb_analysed_artist_songs(artist, amount=None):
+    analysed_songs = {}
+    songs = get_songs_by_artist(artist)
+    for counter, song in enumerate(songs):
+        if amount:
+            if counter == amount:
+                break
+        analysed_songs[song[1]] = count_verbs(song[-1])
+    return analysed_songs
+
+
+def get_artist_verb_occurence(artist):
+    total = .0
+    analysed_songs = get_verb_analysed_artist_songs(artist)
+    for song in analysed_songs:
+        total += analysed_songs[song]  # ['compound']
+    return total / len(analysed_songs)
+
+def count_verb_occurence_artists(artists):
+    artists_verb_occurence = {}
+    for artist in artists:
+        artists_verb_occurence[artist] = get_artist_verb_occurence(artist)
+    return artists_verb_occurence
+
+
+def count_verbs(text):
+    total_verbs = 0
+    tokens = nltk.word_tokenize(text.lower())
+    text = nltk.Text(tokens)
+    tagged_text = nltk.pos_tag(text, tagset='universal')
+    counts = Counter(tag for word,tag in tagged_text)
+    
+    return counts['VERB'] / len(tagged_text) * 100
+
+def plot(dictionary, ylim=None):    
+    plt.bar(range(len(dictionary)), list(dictionary.values()))
     plt.xticks(range(len(dictionary)), dictionary.keys(), rotation=90)
-    plt.ylim([-1, 1])
+    if ylim:
+        plt.ylim(ylim)
     plt.show()
 
 
@@ -100,8 +150,14 @@ dataset = load_csv('/home/dennis/Workspace/vu/TextMining/final_assignment/songda
 # plot a graph of the mean sentiment of x=20 artists
 # plot(get_artists_sentiment(get_artists(20)))
 
+# plot a graph of the mean percentage of verbs of x=20 artists
+# plot(count_verb_occurence_artists(get_artists(20)))
+
 # plot a graph of the sentiment of x=20 songs from an artist
-# plot(get_analysed_artist_songs('Pitbull', 20))
+# plot(get_analysed_artist_songs('ABBA', 20))
+
+# plot a graph of the percentage of verbs from x=20 songs from an artist
+# plot(count_artist_verb_occurence('ABBA', 20))
 
 # print the song attributes for all the songs of an artist
 # for song in get_songs_by_artist('ABBA'):
