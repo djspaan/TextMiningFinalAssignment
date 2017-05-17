@@ -7,8 +7,6 @@ from collections import Counter
 import nltk
 
 
-VERB_TYPES = ['VBP']
-
 def load_csv(filename):
     file = open(filename, "r")
     lines = reader(file)
@@ -129,7 +127,7 @@ def count_verbs(text):
     
     return counts['VERB'] / len(tagged_text) * 100
 
-def plot(dictionary, ylim=None):    
+def plot(dictionary, ylim=[-1,1]):    
     plt.bar(range(len(dictionary)), list(dictionary.values()))
     plt.xticks(range(len(dictionary)), dictionary.keys(), rotation=90)
     if ylim:
@@ -151,13 +149,13 @@ dataset = load_csv('/home/dennis/Workspace/vu/TextMining/final_assignment/songda
 # plot(get_artists_sentiment(get_artists(20)))
 
 # plot a graph of the mean percentage of verbs of x=20 artists
-# plot(count_verb_occurence_artists(get_artists(20)))
+# plot(count_verb_occurence_artists(get_artists(20)), '')
 
 # plot a graph of the sentiment of x=20 songs from an artist
 # plot(get_analysed_artist_songs('ABBA', 20))
 
 # plot a graph of the percentage of verbs from x=20 songs from an artist
-# plot(count_artist_verb_occurence('ABBA', 20))
+# plot(count_artist_verb_occurence('ABBA', 20), '')
 
 # print the song attributes for all the songs of an artist
 # for song in get_songs_by_artist('ABBA'):
