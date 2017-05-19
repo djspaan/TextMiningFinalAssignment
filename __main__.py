@@ -6,7 +6,6 @@ import numpy as np
 from collections import Counter
 import nltk
 
-
 def load_csv(filename):
     file = open(filename, "r")
     lines = reader(file)
@@ -61,7 +60,7 @@ def get_artists_sentiment(artists):
     return artists_sentiment
 
 
-def analyse_sentiment(text, analyser='vader'):
+def analyse_sentiment(text, analyser='textblob'):
     if analyser == 'vader':
         return analyse_sentiment_vader(text)['compound']
     elif analyser == 'textblob':
@@ -79,7 +78,7 @@ def analyse_sentiment_textblob(text):
     blob = TextBlob(text)
     sentiment = 0
     for sentence in blob.sentences:
-        sentiment += sentence.sentiment.polarity
+        sentiment += sentence.sentiment.subjectivity
     return sentiment / len(blob.sentences)
 
 def count_artist_verb_occurence(artist, amount=None):
@@ -108,7 +107,7 @@ def get_artist_verb_occurence(artist):
     total = .0
     analysed_songs = get_verb_analysed_artist_songs(artist)
     for song in analysed_songs:
-        total += analysed_songs[song]  # ['compound']
+        total += analysed_songs[song]
     return total / len(analysed_songs)
 
 def count_verb_occurence_artists(artists):
@@ -127,8 +126,8 @@ def count_verbs(text):
     
     return counts['VERB'] / len(tagged_text) * 100
 
-def plot(dictionary, ylim=[-1,1]):    
-    plt.bar(range(len(dictionary)), list(dictionary.values()))
+def plot(dictionary, ylim=None):    
+    plt.bar(range(len(dictionary)), list(dictionary.values()), color='yellow', align='center')
     plt.xticks(range(len(dictionary)), dictionary.keys(), rotation=90)
     if ylim:
         plt.ylim(ylim)
@@ -143,19 +142,19 @@ dataset = load_csv('/home/dennis/Workspace/vu/TextMining/final_assignment/songda
 # print(get_artists())
 
 # get the compound sentiment score of all the artist songs
-# print(get_analysed_artist_songs('ABBA'))
+# print(get_analysed_artist_songs('ABBA'), [-1,1])
 
 # plot a graph of the mean sentiment of x=20 artists
-# plot(get_artists_sentiment(get_artists(20)))
+# plot(get_artists_sentiment(get_artists(20)), [0,1])
 
 # plot a graph of the mean percentage of verbs of x=20 artists
-# plot(count_verb_occurence_artists(get_artists(20)), '')
+# plot(count_verb_occurence_artists(get_artists(20)))
 
 # plot a graph of the sentiment of x=20 songs from an artist
-# plot(get_analysed_artist_songs('ABBA', 20))
+# plot(get_analysed_artist_songs('Pitbull', 20), [-1, 1])
 
 # plot a graph of the percentage of verbs from x=20 songs from an artist
-# plot(count_artist_verb_occurence('ABBA', 20), '')
+# plot(count_artist_verb_occurence('ABBA', 20))
 
 # print the song attributes for all the songs of an artist
 # for song in get_songs_by_artist('ABBA'):
